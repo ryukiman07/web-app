@@ -56,6 +56,26 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(error => console.error("再生エラー:", error));
     }
 
+    // ループボタンの処理
+    const loopBtn = document.getElementById("loopBtn");
+    loopBtn.addEventListener("click", () => {
+        audioPlayer.loop = !audioPlayer.loop;
+        loopBtn.style.backgroundColor = audioPlayer.loop ? "#ccc" : ""; // ON/OFF 表示
+        console.log("ループ状態:", audioPlayer.loop);
+    });
+
+    // シャッフルボタンの処理
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    shuffleBtn.addEventListener("click", () => {
+        if (playlist.children.length > 1) {
+            let items = Array.from(playlist.children);
+            items.sort(() => Math.random() - 0.5); // 配列をシャッフル
+            playlist.innerHTML = ""; // 一度リストをクリア
+            items.forEach(item => playlist.appendChild(item)); // シャッフルされた順番で再追加
+        }
+        console.log("シャッフル適用");
+    });
+
     // 🎵 初回ロード
     fetchDriveFiles();
 });
