@@ -10,8 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let isShuffled = false;
     let isLooping = false;
 
-    const API_KEY = "YOUR_API_KEY";
-    const FOLDER_ID = "YOUR_FOLDER_ID";
+    const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
+    const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";
 
     async function fetchDriveFiles() {
         const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}' in parents&fields=files(id,name,mimeType)&key=${API_KEY}`;
