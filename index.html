@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声プレーヤー</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js"></script>
+</head>
+
+<body>
+    <h1>音声プレーヤー</h1>
+
+    <!-- ログインボタン -->
+    <button id="loginBtn">Googleログイン</button>
+    <button id="logoutBtn" style="display:none;">ログアウト</button>
+
+    <!-- 音声プレーヤー -->
+    <audio id="audioPlayer" controls></audio>
+    <button id="shuffleBtn">🔀 シャッフル</button>
+    <button id="loopBtn">🔁 ループ</button>
+    <select id="speedSelect">
+        <option value="1.0">1.0x</option>
+        <option value="1.25">1.25x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2.0">2.0x</option>
+    </select>
+
+    <!-- アップロードエリア -->
+    <input type="file" id="uploadAudio" accept="audio/*">
+    <button id="uploadBtn">アップロード</button>
+
+    <!-- プレイリスト -->
+    <ul id="playlist"></ul>
+
+    <script src="firebase-config.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
