@@ -19,3 +19,16 @@ li {
     padding: 5px;
     border-bottom: 1px solid #ddd;
 }
+
+/* 再生中の曲にハイライトを付ける */
+li.active {
+    background-color: #ffcc00;
+    /* ハイライトの色 */
+    font-weight: bold;
+}
+
+/* シャッフルボタンの選択状態 */
+#shuffleButton.active {
+    background-color: #ff6600;
+    color: white;
+}
