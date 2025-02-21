@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     const audioPlayer = document.getElementById("audioPlayer");
     const playlist = document.getElementById("playlist");
+    let shuffledPlaylist = [];
+    let currentIndex = 0;
 
     // ✅ Google Drive API 設定（要変更）
     const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
@@ -16,7 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("取得したデータ:", data);
 
             if (data.files && data.files.length > 0) {
-                displayPlaylist(data.files);
+                shuffledPlaylist = shuffleArray(data.files.filter(file => ["audio/mpeg", "audio/wav", "audio/ogg"].includes(file.mimeType)));
+                displayPlaylist(shuffledPlaylist);
             } else {
                 console.warn("フォルダ内に音声ファイルが見つかりませんでした。");
             }
@@ -25,36 +28,50 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // 🔹 配列をシャッフルする関数
+    function shuffleArray(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
     // 🔹 取得したファイルをプレイリストに追加
     function displayPlaylist(files) {
         playlist.innerHTML = "";
 
-        const audioFiles = files.filter(file => ["audio/mpeg", "audio/wav", "audio/ogg"].includes(file.mimeType));
-
-        if (audioFiles.length === 0) {
+        if (files.length === 0) {
             playlist.innerHTML = "<li>音声ファイルが見つかりません</li>";
             return;
         }
 
-        audioFiles.forEach(file => {
+        files.forEach((file, index) => {
             const li = document.createElement("li");
             li.textContent = file.name;
-            li.addEventListener("click", () => playAudio(file.id));
+            li.addEventListener("click", () => playAudio(index));
             playlist.appendChild(li);
         });
     }
 
     // 🎵 Google Drive のファイルを再生する
-    async function playAudio(fileId) {
+    function playAudio(index) {
+        if (index >= shuffledPlaylist.length) return;
+
+        currentIndex = index;
+        const fileId = shuffledPlaylist[currentIndex].id;
         const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
 
         console.log("再生するURL:", url); // ✅ デバッグ用
         audioPlayer.src = url;
-
         audioPlayer.play()
             .then(() => console.log("再生開始"))
             .catch(error => console.error("再生エラー:", error));
     }
+
+    // 🎵 自動再生（現在の曲が終わったら次の曲を再生）
+    audioPlayer.addEventListener("ended", () => {
+        currentIndex++;
+        if (currentIndex < shuffledPlaylist.length) {
+            playAudio(currentIndex);
+        }
+    });
 
     // 🎵 初回ロード
     fetchDriveFiles();
