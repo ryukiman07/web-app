@@ -18,7 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("取得したデータ:", data);
 
             if (data.files && data.files.length > 0) {
-                shuffledPlaylist = shuffleArray(data.files.filter(file => ["audio/mpeg", "audio/wav", "audio/ogg"].includes(file.mimeType)));
+                const audioFiles = data.files.filter(file => ["audio/mpeg", "audio/wav", "audio/ogg"].includes(file.mimeType));
+                shuffledPlaylist = shuffleArray(audioFiles);
                 displayPlaylist(shuffledPlaylist);
             } else {
                 console.warn("フォルダ内に音声ファイルが見つかりませんでした。");
@@ -28,9 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 🔹 配列をシャッフルする関数
+    // 🔹 配列をシャッフルする関数（Fisher-Yates アルゴリズムを使用）
     function shuffleArray(array) {
-        return array.sort(() => Math.random() - 0.5);
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 
     // 🔹 取得したファイルをプレイリストに追加
