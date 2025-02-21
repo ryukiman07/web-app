@@ -1,10 +1,11 @@
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyC3uRy3VW5_9WKVdceKt4BI2BZRYz1CWoc",
+    authDomain: "web-app-dad25.firebaseapp.com",
+    projectId: "web-app-dad25",
+    storageBucket: "web-app-dad25.firebasestorage.app",
+    messagingSenderId: "1091131765465",
+    appId: "1:1091131765465:web:cc8df36374229dec1e04c8",
+    measurementId: "G-T7M2LTKP2Q"
 };
 
 // Firebase 初期化
