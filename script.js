@@ -45,15 +45,16 @@ async function fetchDriveFiles() {
         });
     }
 
-
-
-    // ▶️ 音声再生（Google Drive から取得）
     function playAudio(fileId) {
         const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
         console.log("再生するURL:", url); // ✅ デバッグ用
         audioPlayer.src = url;
-        audioPlayer.play().catch(error => console.error("再生エラー:", error));
+
+        audioPlayer.play()
+            .then(() => console.log("再生開始"))
+            .catch(error => console.error("再生エラー:", error));
     }
+
 
 
     // 🎵 初回ロード
