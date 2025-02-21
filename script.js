@@ -7,22 +7,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";  // ← Google Drive のフォルダIDを設定
 
     // 🔹 Google Drive API を使ってフォルダ内のファイル一覧を取得
-    async function fetchDriveFiles() {
-        const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            console.log("取得したデータ:", data);
+async function fetchDriveFiles() {
+    const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log("取得したデータ:", data);
+
+        if (data.files && data.files.length > 0) {
             displayPlaylist(data.files);
-        } catch (error) {
-            console.error("Google Drive API エラー:", error);
+        } else {
+            console.warn("フォルダ内に音声ファイルが見つかりませんでした。");
         }
+    } catch (error) {
+        console.error("Google Drive API エラー:", error);
     }
+}
+
+
 
     // 🔹 取得したファイルをプレイリストに追加
     function displayPlaylist(files) {
         playlist.innerHTML = "";
-        files.forEach(file => {
+
+        const audioFiles = files.filter(file => file.mimeType.startsWith("audio/")); // 🎵 MP3などの音声ファイルだけ取得
+
+        if (audioFiles.length === 0) {
+            playlist.innerHTML = "<li>音声ファイルが見つかりません</li>";
+            return;
+        }
+
+        audioFiles.forEach(file => {
             const li = document.createElement("li");
             li.textContent = file.name;
             li.addEventListener("click", () => playAudio(file.id));
@@ -30,11 +45,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+
+
     // ▶️ 音声再生（Google Drive から取得）
     function playAudio(fileId) {
-        audioPlayer.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
-        audioPlayer.play();
+        const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        console.log("再生するURL:", url); // ✅ デバッグ用
+        audioPlayer.src = url;
+        audioPlayer.play().catch(error => console.error("再生エラー:", error));
     }
+
 
     // 🎵 初回ロード
     fetchDriveFiles();
