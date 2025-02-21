@@ -1,34 +1,58 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    background-color: #f5f5f5;
 }
 
 button {
     margin: 5px;
-    padding: 8px 15px;
+    padding: 10px 18px;
     font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #ddd;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background-color: #bbb;
 }
 
 ul {
     list-style: none;
     padding: 0;
+    width: 80%;
+    margin: 10px auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 li {
     cursor: pointer;
-    padding: 5px;
+    padding: 10px;
     border-bottom: 1px solid #ddd;
+    transition: background-color 0.2s;
 }
 
-/* 再生中の曲にハイライトを付ける */
+li:hover {
+    background-color: #f0f0f0;
+}
+
+/* 再生中の曲を強調表示 */
 li.active {
     background-color: #ffcc00;
-    /* ハイライトの色 */
     font-weight: bold;
+    border-radius: 5px;
 }
 
-/* シャッフルボタンの選択状態 */
-#shuffleButton.active {
+/* シャッフル・リピートボタンの選択状態 */
+#shuffleBtn.active,
+#repeatBtn.active {
     background-color: #ff6600;
     color: white;
+    font-weight: bold;
+    box-shadow: 0px 3px 6px rgba(255, 102, 0, 0.4);
+    transform: scale(1.05);
 }

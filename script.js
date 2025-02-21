@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentIndex = 0;
     let isShuffle = false;  // シャッフルモード
     let isRepeat = false;   // リピートモード
+    let playedIndexes = []; // シャッフル時の再生履歴（重複防止用）
 
     const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
     const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";
@@ -42,13 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
             li.addEventListener("click", () => playAudio(index));
             playlist.appendChild(li);
         });
+
+        highlightCurrentTrack(); // 初期状態でハイライト更新
     }
 
     function playAudio(index) {
         currentIndex = index;
         const file = files[currentIndex];
         const url = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
-        
+
         console.log("再生するURL:", url);
         audioPlayer.src = url;
         audioPlayer.play()
@@ -67,13 +70,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function getNextShuffleIndex() {
+        // 未再生の曲があれば、その中からランダムに選ぶ
+        if (playedIndexes.length >= files.length) {
+            playedIndexes = []; // 全曲再生済みならリセット
+        }
+
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * files.length);
+        } while (playedIndexes.includes(nextIndex) && playedIndexes.length < files.length);
+
+        playedIndexes.push(nextIndex);
+        return nextIndex;
+    }
+
     function playNext() {
         if (isRepeat) {
             // リピートモードなら同じ曲を再生
             playAudio(currentIndex);
         } else if (isShuffle) {
             // シャッフルモードならランダムな曲を選択
-            currentIndex = Math.floor(Math.random() * files.length);
+            currentIndex = getNextShuffleIndex();
             playAudio(currentIndex);
         } else {
             // 通常モードなら次の曲へ（最後の曲なら最初に戻る）
@@ -91,6 +109,10 @@ document.addEventListener("DOMContentLoaded", () => {
         isRepeat = false; // リピートをオフにする
         shuffleButton.classList.toggle("active", isShuffle);
         repeatButton.classList.remove("active"); // リピートの選択を解除
+
+        if (isShuffle) {
+            playedIndexes = []; // シャッフル開始時に履歴をリセット
+        }
     });
 
     // 🔁 リピートボタンの動作
