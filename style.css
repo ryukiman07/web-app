@@ -19,6 +19,33 @@ button:hover {
     background-color: #bbb;
 }
 
+/* ソートボタンの配置 */
+.sort-controls {
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* ソートボタンのデザイン */
+#sortAscBtn,
+#sortDescBtn {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+#sortAscBtn:hover,
+#sortDescBtn:hover {
+    background-color: #45a049;
+}
+
+#sortAscBtn.active,
+#sortDescBtn.active {
+    background-color: #2e7d32;
+    transform: scale(1.05);
+}
+
 ul {
     list-style: none;
     padding: 0;
