@@ -5,18 +5,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const repeatButton = document.getElementById("repeatBtn");
     const sortAscButton = document.getElementById("sortAscBtn");
     const sortDescButton = document.getElementById("sortDescBtn");
-    const folderSelect = document.getElementById("folderSelect");
+    const folderSelect = document.getElementById("folderSelect"); // フォルダ選択ドロップダウン
 
     let files = [];
     let currentIndex = 0;
     let isShuffle = false;
     let isRepeat = false;
     let playedIndexes = [];
-    let currentSort = "asc"; // デフォルトで昇順
+    let currentSort = "asc";
     let currentFolder = "";
 
-    const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
-    const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";
+    const API_KEY = "YOUR_API_KEY";
+    const AUDIO_FOLDER_ID = "YOUR_AUDIO_FOLDER_ID";
 
     async function fetchFolders() {
         const url = `https://www.googleapis.com/drive/v3/files?q='${AUDIO_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder'&fields=files(id,name)&key=${API_KEY}`;
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
             files = data.files || [];
             if (files.length > 0) {
-                sortFiles("asc"); // デフォルトで昇順ソート適用
+                sortFiles("asc");
             } else {
                 playlist.innerHTML = "<li>音声ファイルが見つかりません</li>";
             }

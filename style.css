@@ -89,3 +89,13 @@ li.active {
     box-shadow: 0px 3px 6px rgba(255, 102, 0, 0.4);
     transform: scale(1.05);
 }
+
+/* フォルダ選択ドロップダウンのスタイル */
+#folderSelect {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: white;
+    margin-bottom: 10px;
+}
