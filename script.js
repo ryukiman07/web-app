@@ -3,16 +3,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const playlist = document.getElementById("playlist");
     const shuffleButton = document.getElementById("shuffleBtn");
     const repeatButton = document.getElementById("repeatBtn");
+    const sortButton = document.getElementById("sortBtn");  // ⬆⬇ ソートボタン追加
 
     let files = [];
     let currentIndex = 0;
     let isShuffle = false;
     let isRepeat = false;
     let playedIndexes = [];
+    let sortOrder = "asc"; // デフォルトは昇順
 
     const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
 
-    // 🗂 リスニングAとリスニングBのフォルダIDをリストで管理
+    // 🗂 リスニングAとリスニングBのフォルダIDリスト
     const FOLDERS = [
         { id: "1idIVURpdyjIPJ0ztJc-dYqsoonkjmCOv", name: "テーマ例文" },
         { id: "1FLU4OZ1F9Ezxnv7YUZ8NOgoHXCIExfT4", name: "東大英語過去問" }
@@ -31,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const folderFiles = data.files
                     .filter(file => ["audio/mpeg", "audio/wav", "audio/ogg"].includes(file.mimeType))
-                    .map(file => ({ ...file, folderName: folder.name })); // フォルダ名を追加
+                    .map(file => ({ ...file, folderName: folder.name }));
 
                 files = [...files, ...folderFiles];
             } catch (error) {
@@ -40,10 +42,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (files.length > 0) {
-            displayPlaylist();
+            sortFiles();
         } else {
             playlist.innerHTML = "<li>音声ファイルが見つかりません</li>";
         }
+    }
+
+    function sortFiles() {
+        files.sort((a, b) => {
+            const nameA = a.name.toLowerCase();
+            const nameB = b.name.toLowerCase();
+            return sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+        });
+
+        displayPlaylist();
     }
 
     function displayPlaylist() {
@@ -51,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let folderGroups = {};
 
-        // 📂 フォルダごとにグループ化
         files.forEach((file, index) => {
             if (!folderGroups[file.folderName]) {
                 folderGroups[file.folderName] = [];
@@ -59,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
             folderGroups[file.folderName].push({ name: file.name, index });
         });
 
-        // 🎵 プレイリストをフォルダごとに表示
         Object.keys(folderGroups).forEach(folderName => {
             const folderHeader = document.createElement("h3");
             folderHeader.textContent = folderName;
@@ -162,6 +172,13 @@ document.addEventListener("DOMContentLoaded", () => {
         isShuffle = false;
         repeatButton.classList.toggle("active", isRepeat);
         shuffleButton.classList.remove("active");
+    });
+
+    // 🔄 ソートボタンのクリックイベント
+    sortButton.addEventListener("click", () => {
+        sortOrder = sortOrder === "asc" ? "desc" : "asc"; // 昇順・降順を切り替え
+        sortButton.textContent = sortOrder === "asc" ? "▲ 昇順" : "▼ 降順"; // ボタンのテキスト変更
+        sortFiles();
     });
 
     fetchDriveFiles();
