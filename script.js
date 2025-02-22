@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
+    const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
+    const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";
+
     const audioPlayer = document.getElementById("audioPlayer");
     const playlist = document.getElementById("playlist");
     const shuffleButton = document.getElementById("shuffleBtn");
@@ -15,15 +18,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     let currentSort = "asc";
     let currentFolder = "";
 
-    const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
-    const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";
-
+    // **Audioフォルダ内のサブフォルダ一覧を取得**
     async function fetchFolders() {
-        const url = `https://www.googleapis.com/drive/v3/files?q='${AUDIO_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder'&fields=files(id,name)&key=${API_KEY}`;
+        const url = `https://www.googleapis.com/drive/v3/files?q='${ROOT_AUDIO_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder'&fields=files(id,name)&key=${API_KEY}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
-            if (data.files) {
+            if (data.files && data.files.length > 0) {
                 folderSelect.innerHTML = "";
                 data.files.forEach(folder => {
                     const option = document.createElement("option");
@@ -31,17 +32,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                     option.textContent = folder.name;
                     folderSelect.appendChild(option);
                 });
-                if (data.files.length > 0) {
-                    currentFolder = data.files[0].id;
-                    fetchDriveFiles(currentFolder);
-                }
+                currentFolder = data.files[0].id; // 最初のフォルダをデフォルトで選択
+                folderSelect.value = currentFolder;
+                fetchDriveFiles(currentFolder);
+            } else {
+                console.error("フォルダが見つかりません。");
             }
         } catch (error) {
             console.error("Google Drive API フォルダ取得エラー:", error);
         }
     }
 
+    // **選択したフォルダ内の MP ファイルを取得**
     async function fetchDriveFiles(folderId) {
+        currentFolder = folderId; // 選択されたフォルダを更新
         const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}' in parents and mimeType contains 'audio/'&fields=files(id,name,mimeType)&key=${API_KEY}`;
         try {
             const response = await fetch(url);
@@ -57,6 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // **プレイリストを更新**
     function displayPlaylist() {
         playlist.innerHTML = "";
         files.forEach((file, index) => {
@@ -69,6 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         highlightCurrentTrack();
     }
 
+    // **ファイルをソート**
     function sortFiles(order) {
         files.sort((a, b) => {
             return order === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
@@ -78,18 +84,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         displayPlaylist();
     }
 
+    // **ソートボタンの状態を更新**
     function updateSortButtonState() {
         sortAscButton.classList.toggle("active", currentSort === "asc");
         sortDescButton.classList.toggle("active", currentSort === "desc");
     }
 
-    sortAscButton.addEventListener("click", () => sortFiles("asc"));
-    sortDescButton.addEventListener("click", () => sortFiles("desc"));
+    // **フォルダ選択変更時に MP ファイルを更新**
     folderSelect.addEventListener("change", (e) => {
-        currentFolder = e.target.value;
-        fetchDriveFiles(currentFolder);
+        fetchDriveFiles(e.target.value);
     });
 
+    // **音声を再生**
     function playAudio(index) {
         if (!files[index]) return;
         currentIndex = index;
@@ -105,6 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .catch(error => console.error("再生エラー:", error));
     }
 
+    // **現在の再生トラックを強調**
     function highlightCurrentTrack() {
         const items = playlist.getElementsByTagName("li");
         Array.from(items).forEach(li => li.classList.remove("active"));
@@ -113,6 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // **次の曲を再生**
     function playNext() {
         if (isRepeat) {
             playAudio(currentIndex);
@@ -125,6 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // **イベントリスナー**
     audioPlayer.addEventListener("ended", playNext);
     shuffleButton.addEventListener("click", () => {
         isShuffle = !isShuffle;
@@ -139,5 +148,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         shuffleButton.classList.remove("active");
     });
 
-    await fetchFolders();
+    await fetchFolders(); // 初期ロード時にフォルダを取得
 });
