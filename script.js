@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // **Audioフォルダ内のサブフォルダ一覧を取得**
     async function fetchFolders() {
-        const url = `https://www.googleapis.com/drive/v3/files?q='${ROOT_AUDIO_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder'&fields=files(id,name)&key=${API_KEY}`;
+        const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder'&fields=files(id,name)&key=${API_KEY}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
