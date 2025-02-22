@@ -15,8 +15,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     let currentSort = "asc";
     let currentFolder = "";
 
-    const API_KEY = "YOUR_API_KEY";
-    const AUDIO_FOLDER_ID = "YOUR_AUDIO_FOLDER_ID";
+    const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
+    const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";
 
     async function fetchFolders() {
         const url = `https://www.googleapis.com/drive/v3/files?q='${AUDIO_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder'&fields=files(id,name)&key=${API_KEY}`;
