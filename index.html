@@ -4,20 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>東大英語スクリプト</title>
+    <title>音声プレーヤー</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <h1>東大英語スクリプト</h1>
+    <h1>音声プレーヤー</h1>
+
+    <!-- ログインボタン -->
+    <!-- <button id="loginBtn">Googleログイン</button>
+    <button id="logoutBtn" style="display:none;">ログアウト</button> -->
 
     <!-- 音声プレーヤー -->
     <audio id="audioPlayer" controls></audio>
     <button id="shuffleBtn">🔀 シャッフル</button>
     <button id="repeatBtn">🔁 リピート</button>
 
-    <!-- 🔽 追加部分：ソートボタン -->
-    <button id="sortBtn">▲ 昇順</button>
+    <!-- アップロードエリア -->
+    <!-- <input type="file" id="uploadAudio" accept="audio/*">
+    <button id="uploadBtn">アップロード</button> -->
 
     <!-- プレイリスト -->
     <ul id="playlist"></ul>
@@ -31,6 +36,7 @@
     <!-- Firebase 設定 & メインスクリプト -->
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="script.js"></script>
+
 
 </body>
 

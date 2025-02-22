@@ -19,27 +19,6 @@ button:hover {
     background-color: #bbb;
 }
 
-/* 🔽 追加：ソートボタンのスタイル */
-#sortBtn {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-#sortBtn:hover {
-    background-color: #0056b3;
-}
-
-/* 昇順・降順の切り替えスタイル */
-#sortBtn.asc {
-    background-color: #007bff;
-}
-
-#sortBtn.desc {
-    background-color: #ff6600;
-}
-
 ul {
     list-style: none;
     padding: 0;
