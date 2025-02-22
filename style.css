@@ -30,19 +30,25 @@ button:hover {
 /* ソートボタンのデザイン */
 #sortAscBtn,
 #sortDescBtn {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #ddd;
+    color: black;
     font-weight: bold;
 }
 
 #sortAscBtn:hover,
 #sortDescBtn:hover {
-    background-color: #45a049;
+    background-color: #bbb;
 }
 
-#sortAscBtn.active,
+#sortAscBtn.active {
+    background-color: #4CAF50;
+    color: white;
+    transform: scale(1.05);
+}
+
 #sortDescBtn.active {
     background-color: #2e7d32;
+    color: white;
     transform: scale(1.05);
 }
 

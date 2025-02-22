@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let isShuffle = false;
     let isRepeat = false;
     let playedIndexes = [];
+    let currentSort = "asc"; // デフォルトで昇順
 
     const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
     const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";
@@ -25,8 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.files) {
                 files = data.files.filter(file => file.mimeType.startsWith("audio/"));
                 if (files.length > 0) {
-                    displayPlaylist();
-                    playAudio(0);
+                    sortFiles("asc"); // デフォルトで昇順ソート適用
                 } else {
                     playlist.innerHTML = "<li>音声ファイルが見つかりません</li>";
                 }
@@ -52,13 +52,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function sortFiles(order) {
         files.sort((a, b) => {
-            if (order === "asc") {
-                return a.name.localeCompare(b.name);
-            } else {
-                return b.name.localeCompare(a.name);
-            }
+            return order === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
         });
+        currentSort = order;
+        updateSortButtonState();
         displayPlaylist();
+    }
+
+    function updateSortButtonState() {
+        sortAscButton.classList.toggle("active", currentSort === "asc");
+        sortDescButton.classList.toggle("active", currentSort === "desc");
     }
 
     sortAscButton.addEventListener("click", () => sortFiles("asc"));
