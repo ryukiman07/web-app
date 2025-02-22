@@ -1,20 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
     const audioPlayer = document.getElementById("audioPlayer");
     const playlist = document.getElementById("playlist");
-    const shuffleButton = document.getElementById("shuffleBtn");
-    const repeatButton = document.getElementById("repeatBtn");
-    const sortButton = document.getElementById("sortBtn");  // ⬆⬇ ソートボタン追加
 
     let files = [];
-    let currentIndex = 0;
-    let isShuffle = false;
-    let isRepeat = false;
-    let playedIndexes = [];
-    let sortOrder = "asc"; // デフォルトは昇順
+    let folderFiles = {}; // フォルダごとのファイルリスト
+    let currentIndex = {};
+    let isShuffle = {}; // フォルダごとのシャッフル状態
+    let isRepeat = {};  // フォルダごとのリピート状態
+    let playedIndexes = {}; // フォルダごとの再生履歴
 
     const API_KEY = "AIzaSyCbu0tiY1e6aEIGEDYp_7mgXJ8-95m-ZvM";
 
-    // 🗂 リスニングAとリスニングBのフォルダIDリスト
+    // 🗂 フォルダリスト（IDを適宜変更）
     const FOLDERS = [
         { id: "1idIVURpdyjIPJ0ztJc-dYqsoonkjmCOv", name: "テーマ例文" },
         { id: "1FLU4OZ1F9Ezxnv7YUZ8NOgoHXCIExfT4", name: "東大英語過去問" }
@@ -22,6 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function fetchDriveFiles() {
         files = [];
+        folderFiles = {};
+        currentIndex = {};
+        isShuffle = {};
+        isRepeat = {};
+        playedIndexes = {};
 
         for (const folder of FOLDERS) {
             const url = `https://www.googleapis.com/drive/v3/files?q='${folder.id}' in parents&fields=files(id,name,mimeType)&key=${API_KEY}`;
@@ -31,68 +33,69 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
                 console.log(`フォルダ「${folder.name}」の取得データ:`, data);
 
-                const folderFiles = data.files
+                folderFiles[folder.name] = data.files
                     .filter(file => ["audio/mpeg", "audio/wav", "audio/ogg"].includes(file.mimeType))
                     .map(file => ({ ...file, folderName: folder.name }));
 
-                files = [...files, ...folderFiles];
+                files = [...files, ...folderFiles[folder.name]];
+                currentIndex[folder.name] = 0;
+                isShuffle[folder.name] = false;
+                isRepeat[folder.name] = false;
+                playedIndexes[folder.name] = [];
             } catch (error) {
                 console.error(`Google Drive API エラー（${folder.name}）:`, error);
             }
         }
 
         if (files.length > 0) {
-            sortFiles();
+            displayPlaylist();
         } else {
             playlist.innerHTML = "<li>音声ファイルが見つかりません</li>";
         }
     }
 
-    function sortFiles() {
-        files.sort((a, b) => {
-            const nameA = a.name.toLowerCase();
-            const nameB = b.name.toLowerCase();
-            return sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-        });
-
-        displayPlaylist();
-    }
-
     function displayPlaylist() {
         playlist.innerHTML = "";
 
-        let folderGroups = {};
+        Object.keys(folderFiles).forEach(folderName => {
+            if (folderFiles[folderName].length === 0) return;
 
-        files.forEach((file, index) => {
-            if (!folderGroups[file.folderName]) {
-                folderGroups[file.folderName] = [];
-            }
-            folderGroups[file.folderName].push({ name: file.name, index });
-        });
-
-        Object.keys(folderGroups).forEach(folderName => {
+            // 📂 フォルダタイトル
             const folderHeader = document.createElement("h3");
             folderHeader.textContent = folderName;
             playlist.appendChild(folderHeader);
 
+            // 🔀 フォルダごとのシャッフル・リピートボタン
+            const controlsDiv = document.createElement("div");
+            const shuffleButton = document.createElement("button");
+            shuffleButton.textContent = "🔀 シャッフル";
+            shuffleButton.addEventListener("click", () => toggleShuffle(folderName));
+            controlsDiv.appendChild(shuffleButton);
+
+            const repeatButton = document.createElement("button");
+            repeatButton.textContent = "🔁 リピート";
+            repeatButton.addEventListener("click", () => toggleRepeat(folderName));
+            controlsDiv.appendChild(repeatButton);
+
+            playlist.appendChild(controlsDiv);
+
+            // 🎵 プレイリスト作成
             const ul = document.createElement("ul");
-            folderGroups[folderName].forEach(item => {
+            folderFiles[folderName].forEach((file, index) => {
                 const li = document.createElement("li");
-                li.textContent = item.name;
-                li.dataset.index = item.index;
-                li.addEventListener("click", () => playAudio(item.index, true));
+                li.textContent = file.name;
+                li.dataset.index = index;
+                li.addEventListener("click", () => playAudio(folderName, index, true));
                 ul.appendChild(li);
             });
 
             playlist.appendChild(ul);
         });
-
-        highlightCurrentTrack();
     }
 
-    async function playAudio(index, isUserAction = false) {
-        currentIndex = index;
-        const file = files[currentIndex];
+    async function playAudio(folderName, index, isUserAction = false) {
+        currentIndex[folderName] = index;
+        const file = folderFiles[folderName][index];
         const url = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
 
         console.log("再生するURL:", url);
@@ -114,71 +117,67 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("再生はユーザーの操作が必要です");
             }
 
-            highlightCurrentTrack();
+            highlightCurrentTrack(folderName);
         } catch (error) {
             console.error("再生エラー:", error);
         }
     }
 
-    function highlightCurrentTrack() {
+    function highlightCurrentTrack(folderName) {
         const items = playlist.getElementsByTagName("li");
         Array.from(items).forEach(li => li.classList.remove("active"));
-        if (items[currentIndex]) {
-            items[currentIndex].classList.add("active");
+        if (items[currentIndex[folderName]]) {
+            items[currentIndex[folderName]].classList.add("active");
         }
     }
 
-    function getNextShuffleIndex() {
-        if (playedIndexes.length >= files.length) {
-            playedIndexes = [];
+    function getNextShuffleIndex(folderName) {
+        if (playedIndexes[folderName].length >= folderFiles[folderName].length) {
+            playedIndexes[folderName] = [];
         }
 
         let nextIndex;
         do {
-            nextIndex = Math.floor(Math.random() * files.length);
-        } while (playedIndexes.includes(nextIndex) && playedIndexes.length < files.length);
+            nextIndex = Math.floor(Math.random() * folderFiles[folderName].length);
+        } while (playedIndexes[folderName].includes(nextIndex) && playedIndexes[folderName].length < folderFiles[folderName].length);
 
-        playedIndexes.push(nextIndex);
+        playedIndexes[folderName].push(nextIndex);
         return nextIndex;
     }
 
-    function playNext() {
-        if (isRepeat) {
-            playAudio(currentIndex, false);
-        } else if (isShuffle) {
-            currentIndex = getNextShuffleIndex();
-            playAudio(currentIndex, false);
+    function playNext(folderName) {
+        if (isRepeat[folderName]) {
+            playAudio(folderName, currentIndex[folderName], false);
+        } else if (isShuffle[folderName]) {
+            currentIndex[folderName] = getNextShuffleIndex(folderName);
+            playAudio(folderName, currentIndex[folderName], false);
         } else {
-            currentIndex = (currentIndex + 1) % files.length;
-            playAudio(currentIndex, false);
+            currentIndex[folderName] = (currentIndex[folderName] + 1) % folderFiles[folderName].length;
+            playAudio(folderName, currentIndex[folderName], false);
         }
     }
 
-    audioPlayer.addEventListener("ended", playNext);
+    function toggleShuffle(folderName) {
+        isShuffle[folderName] = !isShuffle[folderName];
+        isRepeat[folderName] = false;
+        playedIndexes[folderName] = [];
 
-    shuffleButton.addEventListener("click", () => {
-        isShuffle = !isShuffle;
-        isRepeat = false;
-        shuffleButton.classList.toggle("active", isShuffle);
-        repeatButton.classList.remove("active");
+        console.log(`シャッフル(${folderName}): ${isShuffle[folderName]}`);
+    }
 
-        if (isShuffle) {
-            playedIndexes = [];
-        }
-    });
+    function toggleRepeat(folderName) {
+        isRepeat[folderName] = !isRepeat[folderName];
+        isShuffle[folderName] = false;
 
-    repeatButton.addEventListener("click", () => {
-        isRepeat = !isRepeat;
-        isShuffle = false;
-        repeatButton.classList.toggle("active", isRepeat);
-        shuffleButton.classList.remove("active");
-    });
+        console.log(`リピート(${folderName}): ${isRepeat[folderName]}`);
+    }
 
-    // 🔄 ソートボタンのクリックイベント
-    sortButton.addEventListener("click", () => {
-        sortOrder = sortOrder === "asc" ? "desc" : "asc"; // 昇順・降順を切り替え
-        sortButton.textContent = sortOrder === "asc" ? "▲ 昇順" : "▼ 降順"; // ボタンのテキスト変更
-        sortFiles();
+    audioPlayer.addEventListener("ended", () => {
+        Object.keys(folderFiles).forEach(folderName => {
+            if (folderFiles[folderName].length > 0) {
+                playNext(folderName);
+            }
+        });
     });
 
     fetchDriveFiles();
