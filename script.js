@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const FOLDER_ID = "1bUXZSgygkwjmeNUXPT9VOQn0D5B2vZP0";
 
     async function fetchDriveFiles() {
-        const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}' in parents&fields=files(id,name,mimeType,webContentLink)&key=${API_KEY}`;
+        const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}' in parents&fields=files(id,name,mimeType)&key=${API_KEY}`;
 
         try {
             const response = await fetch(url);
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!files[index]) return;
         currentIndex = index;
         const file = files[currentIndex];
-        const url = file.webContentLink || `https://drive.google.com/uc?id=${file.id}`;
+        const url = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
 
         console.log("再生するURL:", url);
         audioPlayer.src = url;
